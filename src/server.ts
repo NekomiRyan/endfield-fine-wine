@@ -14,6 +14,7 @@ type StatisticsBinding = {
 type StatisticsEnv = {
   STATISTICS_ANALYTICS_ENGINE?: StatisticsBinding;
   STATISTICS_WEBHOOK_URL?: string;
+  STATISTICS_SUMMARY_URL?: string;
 };
 
 type StatisticsPayload = {
@@ -69,9 +70,16 @@ function isH3SwallowedErrorBody(body: string): boolean {
 function parseStatisticsPayload(value: unknown): StatisticsPayload | undefined {
   if (!value || typeof value !== "object") return undefined;
   const data = value as Record<string, unknown>;
-  if (typeof data["app"] !== "string" || data["app"] !== "endfield-finewine-patcher") return undefined;
-  if (typeof data["event"] !== "string" || !/^[a-z][a-z0-9_]{1,63}$/.test(data["event"])) return undefined;
-  if (data["count"] !== 1 || typeof data["appVersion"] !== "string" || typeof data["osMajor"] !== "number") return undefined;
+  if (typeof data["app"] !== "string" || data["app"] !== "endfield-finewine-patcher")
+    return undefined;
+  if (typeof data["event"] !== "string" || !/^[a-z][a-z0-9_]{1,63}$/.test(data["event"]))
+    return undefined;
+  if (
+    data["count"] !== 1 ||
+    typeof data["appVersion"] !== "string" ||
+    typeof data["osMajor"] !== "number"
+  )
+    return undefined;
   const rawMetadata = data["metadata"];
   const metadata: Record<string, string> = {};
   if (rawMetadata && typeof rawMetadata === "object") {
@@ -107,11 +115,15 @@ async function recordStatistics(env: unknown, payload: StatisticsPayload): Promi
     try {
       const webhook = new URL(config.STATISTICS_WEBHOOK_URL);
       if (webhook.protocol === "https:" || webhook.protocol === "http:") {
-        jobs.push(fetch(webhook, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ ...payload, timestamp: new Date().toISOString() }),
-        }).then(() => undefined).catch(() => undefined));
+        jobs.push(
+          fetch(webhook, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ ...payload, timestamp: new Date().toISOString() }),
+          })
+            .then(() => undefined)
+            .catch(() => undefined),
+        );
       }
     } catch {
       // An invalid optional URL is equivalent to statistics being disabled.
@@ -120,13 +132,46 @@ async function recordStatistics(env: unknown, payload: StatisticsPayload): Promi
   await Promise.all(jobs);
 }
 
+async function readStatisticsSummary(env: unknown): Promise<Response> {
+  const summaryURL = (env as StatisticsEnv | null)?.STATISTICS_SUMMARY_URL;
+  if (!summaryURL)
+    return new Response(null, { status: 404, headers: { "cache-control": "no-store" } });
+
+  let url: URL;
+  try {
+    url = new URL(summaryURL);
+    if (url.protocol !== "https:" && url.protocol !== "http:")
+      throw new Error("Unsupported summary URL protocol");
+  } catch {
+    return new Response(null, { status: 404, headers: { "cache-control": "no-store" } });
+  }
+
+  try {
+    const response = await fetch(url, { headers: { accept: "application/json" } });
+    if (!response.ok)
+      return new Response(null, { status: 404, headers: { "cache-control": "no-store" } });
+    const body = (await response.json()) as unknown;
+    if (!body || typeof body !== "object")
+      return new Response(null, { status: 502, headers: { "cache-control": "no-store" } });
+    return new Response(JSON.stringify(body), {
+      status: 200,
+      headers: { "content-type": "application/json", "cache-control": "no-store" },
+    });
+  } catch {
+    return new Response(null, { status: 502, headers: { "cache-control": "no-store" } });
+  }
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const url = new URL(request.url);
       if (url.pathname === "/api/statistics") {
         if (request.method !== "POST") {
-          return new Response(null, { status: 405, headers: { allow: "POST", "cache-control": "no-store" } });
+          return new Response(null, {
+            status: 405,
+            headers: { allow: "POST", "cache-control": "no-store" },
+          });
         }
         let payload: StatisticsPayload | undefined;
         try {
@@ -134,11 +179,22 @@ export default {
         } catch {
           payload = undefined;
         }
-        if (!payload) return new Response(null, { status: 400, headers: { "cache-control": "no-store" } });
+        if (!payload)
+          return new Response(null, { status: 400, headers: { "cache-control": "no-store" } });
         const record = recordStatistics(env, payload);
         const waitUntil = (ctx as WaitUntilContext | null)?.waitUntil;
-        if (waitUntil) waitUntil(record); else await record;
+        if (waitUntil) waitUntil(record);
+        else await record;
         return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
+      }
+      if (url.pathname === "/api/statistics/summary") {
+        if (request.method !== "GET") {
+          return new Response(null, {
+            status: 405,
+            headers: { allow: "GET", "cache-control": "no-store" },
+          });
+        }
+        return await readStatisticsSummary(env);
       }
 
       const handler = await getServerEntry();
