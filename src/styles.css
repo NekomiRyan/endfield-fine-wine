@@ -58,7 +58,7 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
   --color-magenta: var(--magenta);
-  --font-display: "Novecento Sans", "HarmonyOS Sans", sans-serif;
+  --font-display: "HarmonyOS Sans", sans-serif;
   --font-sans: "HarmonyOS Sans", sans-serif;
   --font-mono: "HarmonyOS Sans", sans-serif;
   --font-symbol: "Endfield Custom", "HarmonyOS Sans", sans-serif;
@@ -151,6 +151,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 90px;
   }
 
   * {
@@ -178,6 +179,11 @@
   to { transform: translateY(0); }
 }
 
+@keyframes hero-image-settle {
+  from { transform: scale(1.025); }
+  to { transform: scale(1); }
+}
+
 @keyframes hero-image-enter {
   from { transform: none; }
   to { transform: none; }
@@ -197,16 +203,36 @@
 }
 
 .hero-image-enter {
-  animation: none;
+  animation: hero-image-settle 1400ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .hero-content-enter {
   animation: hero-content-enter 450ms 100ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.reveal-ready {
+  opacity: 0;
+  translate: 0 20px;
+  transition: opacity 650ms ease-out, translate 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-ready.is-revealed {
+  opacity: 1;
+  translate: 0 0;
+}
+
+[data-reveal]:nth-child(2) { transition-delay: 80ms; }
+[data-reveal]:nth-child(3) { transition-delay: 160ms; }
+[data-reveal]:nth-child(4) { transition-delay: 240ms; }
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .reveal-ready {
+    opacity: 1;
+    translate: none;
   }
 
   *,
