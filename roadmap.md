@@ -1,0 +1,4 @@
+- [x] Confirm HarmonyOS Sans Bold is loaded and use it consistently for headings.
+- [x] Add subtle entrance and scroll-reveal animations with reduced-motion support.
+- [x] Preserve native smooth scrolling and offset section destinations below the fixed header.
+- [x] Verify fonts, animations, and navigation in the running page.
