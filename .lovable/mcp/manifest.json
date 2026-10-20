@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "sdk_version": "3.1.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "endfield-fine-wine",
+      "version": "0.1.0",
+      "title": "Endfield Fine Wine"
+    },
+    "tools": [
+      {
+        "name": "get_project_overview",
+        "title": "Get project overview",
+        "description": "Describe Endfield FineWine: what it does, its key features, performance figures and repository link.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_install_guide",
+        "title": "Get install guide",
+        "description": "Return the requirements and step-by-step manual build commands for Endfield FineWine.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
