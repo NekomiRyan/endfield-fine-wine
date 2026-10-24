@@ -166,6 +166,14 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const url = new URL(request.url);
+      if (url.pathname === "/googlee61b17e27d59fee7.html") {
+        return new Response("google-site-verification: googlee61b17e27d59fee7.html\n", {
+          status: 200,
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+          },
+        });
+      }
       if (url.pathname === "/api/statistics") {
         if (request.method !== "POST") {
           return new Response(null, {
