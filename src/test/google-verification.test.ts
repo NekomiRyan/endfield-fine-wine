@@ -20,4 +20,32 @@ describe("Google Site Verification", () => {
     const content = fs.readFileSync(filePath, "utf-8");
     expect(content.trim()).toBe("google-site-verification: googlee61b17e27d59fee7.html");
   });
+
+  it("serves sitemap.xml correctly", async () => {
+    const filePath = path.resolve(__dirname, "../../public/sitemap.xml");
+    expect(fs.existsSync(filePath)).toBe(true);
+    const content = fs.readFileSync(filePath, "utf-8");
+    expect(content).toContain("<loc>https://endfield-finewine.web.app/</loc>");
+
+    const request = new Request("https://endfield.example.com/sitemap.xml");
+    const response = await server.fetch(request, {}, {});
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("application/xml");
+    const text = await response.text();
+    expect(text).toContain("<loc>https://endfield-finewine.web.app/</loc>");
+  });
+
+  it("serves robots.txt with sitemap reference", async () => {
+    const filePath = path.resolve(__dirname, "../../public/robots.txt");
+    expect(fs.existsSync(filePath)).toBe(true);
+    const content = fs.readFileSync(filePath, "utf-8");
+    expect(content).toContain("Sitemap: https://endfield-finewine.web.app/sitemap.xml");
+
+    const request = new Request("https://endfield.example.com/robots.txt");
+    const response = await server.fetch(request, {}, {});
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/plain");
+    const text = await response.text();
+    expect(text).toContain("Sitemap: https://endfield-finewine.web.app/sitemap.xml");
+  });
 });

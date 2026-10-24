@@ -110,6 +110,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://endfield-finewine.web.app/",
       },
       {
+        rel: "sitemap",
+        type: "application/xml",
+        href: "https://endfield-finewine.web.app/sitemap.xml",
+      },
+      {
         rel: "stylesheet",
         href: appCss,
       },
