@@ -82,12 +82,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "google-site-verification",
         content: "x51d-uYN_Us2tGP6JHetKWW7w5jmx9LVttezfV6tpr8",
       },
+      {
+        name: "keywords",
+        content:
+          "Endfield on Mac, MacOS Endfield, Macos Endfield, Endfield macOS, Endfield Mac, Arknights Endfield Mac, Arknights Endfield macOS, Arknights: Endfield on Mac, Endfield Apple Silicon, Play Endfield on Mac, How to run Endfield on Mac, Endfield M1 M2 M3 M4, Endfield CrossOver Mac, Endfield Wine Mac, Endfield FineWine, Endfield Mac setup, Endfield Mac compatibility, Endfield Mac download, Endfield Mac guide, Endfield Mac FPS",
+      },
+      {
+        name: "description",
+        content:
+          "Play Arknights: Endfield on Mac & macOS (Apple Silicon M1/M2/M3/M4). Endfield FineWine provides a custom-patched Wine setup, automated patcher, and setup guide to run Endfield on macOS at up to 120 FPS.",
+      },
+      {
+        name: "robots",
+        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+      },
       { name: "author", content: "Lovable" },
+      { name: "application-name", content: "Endfield FineWine" },
+      { name: "apple-mobile-web-app-title", content: "Endfield on Mac" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Endfield FineWine" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      {
+        rel: "canonical",
+        href: "https://endfield-finewine.web.app/",
+      },
       {
         rel: "stylesheet",
         href: appCss,
